@@ -71,5 +71,5 @@ class AppConfiguration {
             objectMapper: ObjectMapper,
             infoStorage: MutableMap<String, Storage>,
             updateQueueService: UpdateQueueService
-    ): FileListHolderService = JsonBasedFileListHolderService(jsonPath, objectMapper, infoStorage, updateQueueService)
+    ): FileListHolderService = JsonBasedFileListHolderService(jsonPath, objectMapper, infoStorage)
 }

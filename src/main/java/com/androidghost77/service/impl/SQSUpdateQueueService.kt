@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.jboss.logging.Logger
 import software.amazon.awssdk.services.sqs.SqsClient
 
-class SQSUpdateQueueService constructor(
+class SQSUpdateQueueService (
     val sqs: SqsClient,
     val queueUrl: String,
     val objectMapper: ObjectMapper
@@ -16,6 +16,6 @@ class SQSUpdateQueueService constructor(
     override fun sendUpdateEvent(event: UpdateEvent) {
         val eventStr = objectMapper.writeValueAsString(event)
         sqs.sendMessage{ msg -> msg.queueUrl(queueUrl).messageBody(eventStr) }
-        log.infov("Send update event {0} to sqs", eventStr)
+        log.infov("Sent update event {0} to sqs", eventStr)
     }
 }
