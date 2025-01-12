@@ -19,6 +19,7 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-arc")
+    implementation("io.quarkus:quarkus-scheduler:3.17.6")
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-sqs:${amazonSQSVersion}")
     implementation("software.amazon.awssdk:url-connection-client:2.29.49")
     implementation("commons-codec:commons-codec:1.16.0")

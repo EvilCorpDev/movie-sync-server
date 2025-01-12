@@ -13,10 +13,10 @@ import java.util.*
 
 
 @ApplicationScoped
-class FileServiceImpl @Inject constructor (
-        private val usersService: UserService,
-        private val store: FileListHolderService,
-        private val checksumCalculator: ChecksumCalculator
+class FileServiceImpl @Inject constructor(
+    private val usersService: UserService,
+    private val store: FileListHolderService,
+    private val checksumCalculator: ChecksumCalculator
 ) : FileService {
 
     override fun scanFolders() {
@@ -30,7 +30,7 @@ class FileServiceImpl @Inject constructor (
 
     override fun getFileById(id: String): File {
         val movieInfoById = store.getMovieInfoById(id)
-        val rootPath = when(movieInfoById.showType) {
+        val rootPath = when (movieInfoById.showType) {
             ShowType.MOVIE -> usersService.getUser(movieInfoById.owner).moviePath
             ShowType.TV_SHOW -> usersService.getUser(movieInfoById.owner).tvPath
         }
@@ -38,29 +38,40 @@ class FileServiceImpl @Inject constructor (
     }
 
     private fun scanFolder(userName: String, path: String, type: ShowType): List<MovieInfo> = File(path)
-                .listFiles()
-                .filter { !store.containsFile(userName, it.name) }
-                .map { fileToMovieInfo(userName, it, type) }
-                .flatten()
+        .listFiles()
+        .filter { !store.containsFile(userName, it.name) }
+        .map { fileToMovieInfo(userName, it, type) }
+        .flatten()
 
-    private fun fileToMovieInfo(userName: String, file: File, type: ShowType, parentFolder: String = "/"): List<MovieInfo> {
+    private fun fileToMovieInfo(
+        userName: String,
+        file: File,
+        type: ShowType,
+        parentFolder: String = "/"
+    ): List<MovieInfo> {
         if (file.isFile) {
-            val id = UUID.randomUUID().toString()
-            checksumCalculator.addFileToQueue(userName, file, id, type)
-            return listOf(MovieInfo(
-                    name = file.name,
-                    id = id,
-                    folder = parentFolder,
-                    showType = type,
-                    size = file.length(),
-                    hashSum = "",
-                    owner = userName,
-            ))
+            if (!store.containsFile(userName, file.name)) {
+                val id = UUID.randomUUID().toString()
+                checksumCalculator.addFileToQueue(userName, file, id, type)
+                return listOf(
+                    MovieInfo(
+                        name = file.name,
+                        id = id,
+                        folder = parentFolder,
+                        showType = type,
+                        size = file.length(),
+                        hashSum = "",
+                        owner = userName,
+                    )
+                )
+            } else {
+                return emptyList()
+            }
         }
 
         return file.listFiles()
-                .map { fileToMovieInfo(userName, it, type, "${parentFolder}${file.name}/") }
-                .flatten()
+            .map { fileToMovieInfo(userName, it, type, "${parentFolder}${file.name}/") }
+            .flatten()
     }
 
 }
