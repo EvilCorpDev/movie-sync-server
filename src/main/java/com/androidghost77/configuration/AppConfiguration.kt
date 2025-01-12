@@ -7,10 +7,13 @@ import jakarta.enterprise.context.ApplicationScoped
 import com.androidghost77.model.Storage
 import com.androidghost77.model.User
 import com.androidghost77.service.FileListHolderService
+import com.androidghost77.service.UpdateQueueService
 import com.androidghost77.service.UserService
 import com.androidghost77.service.impl.JsonBasedFileListHolderService
 import com.androidghost77.service.impl.JsonBasedUsersService
+import com.androidghost77.service.impl.SQSUpdateQueueService
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import software.amazon.awssdk.services.sqs.SqsClient
 import java.io.File
 import java.io.FileInputStream
 
@@ -56,9 +59,17 @@ class AppConfiguration {
     }
 
     @ApplicationScoped
+    fun getSQSUpdateQueueService(
+        @ConfigProperty(name = "amazon.sqs.url") sqsUrl: String,
+        sqs: SqsClient,
+        objectMapper: ObjectMapper,
+    ): UpdateQueueService = SQSUpdateQueueService(sqs, sqsUrl, objectMapper)
+
+    @ApplicationScoped
     fun getFileListHolderService(
             @ConfigProperty(name = "json.store.info.path") jsonPath: String,
             objectMapper: ObjectMapper,
             infoStorage: MutableMap<String, Storage>,
-    ): FileListHolderService = JsonBasedFileListHolderService(jsonPath, objectMapper, infoStorage)
+            updateQueueService: UpdateQueueService
+    ): FileListHolderService = JsonBasedFileListHolderService(jsonPath, objectMapper, infoStorage, updateQueueService)
 }

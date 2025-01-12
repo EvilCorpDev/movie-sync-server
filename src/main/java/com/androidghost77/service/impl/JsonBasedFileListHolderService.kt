@@ -5,7 +5,9 @@ import com.androidghost77.constants.ShowType
 import com.androidghost77.exception.NotFoundException
 import com.androidghost77.model.MovieInfo
 import com.androidghost77.model.Storage
+import com.androidghost77.model.UpdateEvent
 import com.androidghost77.service.FileListHolderService
+import com.androidghost77.service.UpdateQueueService
 import java.io.FileOutputStream
 import java.util.concurrent.Executors
 
@@ -13,6 +15,7 @@ class JsonBasedFileListHolderService(
         private val jsonStorePath: String,
         private val objectMapper: ObjectMapper,
         private val infoStore: MutableMap<String, Storage>,
+        private val updateQueueService: UpdateQueueService
 ) : FileListHolderService {
 
     private val executor = Executors.newSingleThreadExecutor()
@@ -41,6 +44,9 @@ class JsonBasedFileListHolderService(
         }
         names.addAll(newFiles.map(MovieInfo::name))
         updateJsonStorage(userName)
+
+        newFiles.forEach { movieInfo -> updateQueueService.sendUpdateEvent(UpdateEvent(movieInfo.name, movieInfo.id,
+            movieInfo.showType.name)) }
     }
 
     override fun removeFileInfo(userName: String, name: String, type: ShowType) {
