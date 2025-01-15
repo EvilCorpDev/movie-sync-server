@@ -29,7 +29,8 @@ class Md5ChecksumCalculator @Inject constructor(
             updateQueueService.sendUpdateEvent(
                 UpdateEvent(
                     file.name, id,
-                    type.name, checksum
+                    type.name, checksum,
+                    userName
                 )
             )
         }
